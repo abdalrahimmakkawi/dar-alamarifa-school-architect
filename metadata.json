@@ -1,0 +1,5 @@
+{
+  "name": "Dar Alamarifa School Architect",
+  "description": "Operational management and automation platform for Sudanese Dar Alamarifa Elementary School.",
+  "requestFramePermissions": ["microphone", "camera"]
+}
