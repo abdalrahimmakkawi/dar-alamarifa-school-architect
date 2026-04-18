@@ -1,24 +1,30 @@
-import { app, BrowserWindow, Tray, Menu, nativeImage, ipcMain, Notification, shell } from 'electron';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { fork } from 'child_process';
+const electron = require('electron');
+const app = electron.app;
+const BrowserWindow = electron.BrowserWindow;
+const Tray = electron.Tray;
+const Menu = electron.Menu;
+const nativeImage = electron.nativeImage;
+const ipcMain = electron.ipcMain;
+const ElectronNotification = electron.Notification;
+const shell = electron.shell;
+const path = require('path');
+const { fork } = require('child_process');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const dirname = path.dirname(__filename);
 
 // App config
 const APP_NAME = 'Dar Alamarifa';
 const isDev = process.env.NODE_ENV === 'development';
 
-let mainWindow: BrowserWindow | null = null;
-let tray: Tray | null = null;
-let inactivityTimer: NodeJS.Timeout;
+let mainWindow: any = null;
+let tray: any = null;
+let inactivityTimer: any;
 let serverProcess: any = null;
 
 // Start backend server in production
 function startBackend() {
   if (!isDev) {
-    const serverPath = path.join(__dirname, '../dist/server.js');
+    const serverPath = path.join(dirname, '../dist/server.js');
     console.log('Starting backend server at:', serverPath);
     serverProcess = fork(serverPath, [], {
       env: { ...process.env, NODE_ENV: 'production' }
@@ -42,9 +48,9 @@ function createWindow() {
     minWidth: 1024,
     minHeight: 700,
     title: APP_NAME,
-    icon: path.join(__dirname, '../public/icon.png'),
+    icon: path.join(dirname, '../public/icon.png'),
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(dirname, 'preload.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true, // Enable sandbox for security
@@ -107,7 +113,7 @@ function resetInactivityTimer() {
 
 // System tray
 function createTray() {
-  const iconPath = path.join(__dirname, '../public/tray-icon.png');
+  const iconPath = path.join(dirname, '../public/tray-icon.png');
   const icon = nativeImage.createFromPath(iconPath);
   tray = new Tray(icon);
   
@@ -134,11 +140,11 @@ function createTray() {
   tray.setContextMenu(contextMenu);
 }
 
-app.setLoginItemSettings({ openAtLogin: true });
+// app.setLoginItemSettings({ openAtLogin: true });
 
 // IPC Handlers
 ipcMain.handle('notify', (event, { title, body }) => {
-  new Notification({ title, body }).show();
+  new ElectronNotification({ title, body }).show();
 });
 
 ipcMain.handle('get-version', () => {
